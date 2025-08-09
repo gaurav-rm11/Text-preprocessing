@@ -12,14 +12,28 @@ from urllib.parse import urlparse
 import time
 
 # Download required NLTK data
-try:
-    nltk.data.find('tokenizers/punkt')
-    nltk.data.find('corpora/stopwords')
-    nltk.data.find('corpora/wordnet')
-except LookupError:
-    nltk.download('punkt')
-    nltk.download('stopwords')
-    nltk.download('wordnet')
+@st.cache_resource
+def download_nltk_data():
+    """Download required NLTK data with proper error handling"""
+    downloads = [
+        ('punkt_tab', 'tokenizers/punkt_tab'),
+        ('punkt', 'tokenizers/punkt'), 
+        ('stopwords', 'corpora/stopwords'),
+        ('wordnet', 'corpora/wordnet'),
+        ('omw-1.4', 'corpora/omw-1.4')
+    ]
+    
+    for name, path in downloads:
+        try:
+            nltk.data.find(path)
+        except LookupError:
+            try:
+                nltk.download(name, quiet=True)
+            except:
+                pass  # Continue if download fails
+
+# Initialize NLTK downloads
+download_nltk_data()
 
 # Page configuration
 st.set_page_config(
